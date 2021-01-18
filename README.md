@@ -1,5 +1,5 @@
 # joy2key #
-Joypad input wrapper script for ArkOS using [RetroPie](https://github.com/RetroPie/) joy2key.py
+Joypad input listener for ArkOS using [RetroPie](https://github.com/RetroPie/) joy2key.py
 
 ---
 
@@ -35,11 +35,6 @@ and stop joy2key.py from continuing to listen to input.
 
 `listen.sh` takes two+ arguments;
 a script to run, and a keypress map to pass to `joy2key.py`.
-
-```shell
-/opt/joy2key/listen.sh /my/cool/script.sh kcub1 kcuf1 kcuu1 kcud1 0x0a 0x1b
-
-```
 
 ### Listening Manually ###
 
