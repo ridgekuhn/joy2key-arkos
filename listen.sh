@@ -1,67 +1,48 @@
 #!/bin/bash
-# Joypad input listener for ArkOS using RetroPie joy2key.py loader
-# by ridgek
-#
-# Starts joy2key listener, runs a command, and then stops joy2key
+# RetroPie joy2key wrapper for ArkOS by ridgek
+
+# Starts joy2key, runs a command,
+# then stops joy2key and returns command's exit code
 #
 # Key mapping arguments should be
 # curses capability names or ASCII hex values starting with '0x'
 #
 # @usage
-#		/opt/joy2key/listen.sh myCoolScript.sh (kcub1 kcuf1 kcuu1 kcud1 0x0d 0x20 0x1b)
+#		/opt/joy2key/listen.sh myCoolScript.sh kcub1 kcuf1 kcuu1 kcud1 0x0d 0x20 0x1b 0x00 kpp knp
 #
 # @param $1 {command} A script to run
-# @param [$2] {string|hex} left mapping for left
-# @param [$3] {string|hex} right mapping for right
-# @param [$4] {string|hex} up mapping for up
-# @param [$5] {string|hex} down mapping for down
-# @param [$6] {string|hex} but1 mapping for button 1
-# @param [$7] {string|hex} but2 mapping for button 2
-# @param [$8] {string|hex} but3 mapping for button 3
-# @param [$X] {string|hex} butX mapping for button X ...
-###########
-# PREFLIGHT
-###########
-if [ ! -z "${1}" ] && [ -f "${1}" ]; then
+# @param [$2] {string|hex} key code for d-pad left
+# @param [$3] {string|hex} key code for d-pad right
+# @param [$4] {string|hex} key code for d-pad up
+# @param [$5] {string|hex} key code for d-pad down
+# @param [$6] {string|hex} key code for button 1 (A)
+# @param [$7] {string|hex} key code for button 2 (B)
+# @param [$8] {string|hex} key code for button 3 (X)
+# @param [$9] {string|hex} key code for button 4 (Y)
+# @param [$10] {string|hex} key code for button 5 (L1)
+# @param [$11] {string|hex} key code for button 6 (R1)
+if [ "${1}" ] && [ -f "${1}" ]; then
 	RUNCOMMAND="${1}"
 else
-	echo "Could not run script ${1}"
+	echo "ERROR: No command specified"
+	exit 1
 fi
 
-if [ ! -z "${2}" ]; then
+if [ "${2}" ]; then
 	KEY_MAPPINGS=(${@:2})
 else
-	# Default keymap to pass to joy2keyStart (left, right, up, down, return, esc)
-	KEY_MAPPINGS=(kcub1 kcuf1 kcuu1 kcud1 0x0d 0x1b)
+	# Keymap to pass to joy2keyStart
+	# Default button-to-keyboard mappings:
+	# * cursor keys for axis/dpad
+	# * carriage return, space and esc for buttons 'a', 'b' and 'x'
+	# * page up/page down for buttons 5,6 (shoulder buttons)
+	KEY_MAPPINGS=(kcub1 kcuf1 kcuu1 kcud1 0x0d 0x20 0x1b 0x00 kpp knp)
 fi
 
 RETROPIE_HELPERS="/opt/joy2key/RetroPie-Setup/scriptmodules/helpers.sh"
 
-#########
-# HELPERS
-#########
-# Cleanup failed environment and exit script
-#
-# @param 0 {string} - Path to this script
-# @param 1 {num} - Exit Code
-# @param 2 {string} - Message
-errorOut () {
-	local exitCode=${1:-1}
-	local msg="${2}"
-
-	# Stop listening to joypad input
-	joy2keyStop
-
-	# Print message
-	if [ ! -z "${msg}" ]; then
-		echo "${msg}"
-	fi
-
-	exit ${exitCode}
-}
-
 ###############
-# JOY2KEY
+# START JOY2KEY
 ###############
 if [ -f "${RETROPIE_HELPERS}" ]; then
 	source "${RETROPIE_HELPERS}"
@@ -71,7 +52,7 @@ if [ -f "${RETROPIE_HELPERS}" ]; then
 
 	joy2keyStart ${KEY_MAPPINGS[@]}
 else
-	echo "joy2key.py not found"
+	echo "joy2key helpers not found"
 	exit 1
 fi
 
@@ -82,11 +63,15 @@ if [ ! -z "${RUNCOMMAND}" ]; then
 	"${RUNCOMMAND}"
 fi
 
-if [ $? != 0 ]; then
-	errorOut $? "Error: There was a problem running ${RUNCOMMAND}"
+EXIT_CODE=$?
+
+if [ ${EXIT_CODE} != 0 ]; then
+	echo "Error: There was a problem running ${RUNCOMMAND}"
 fi
 
-##########
-# TEARDOWN
-##########
+##############
+# STOP JOY2KEY
+##############
 joy2keyStop
+
+exit ${EXIT_CODE}

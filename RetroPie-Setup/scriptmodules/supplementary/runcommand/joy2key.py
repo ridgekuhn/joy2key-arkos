@@ -1,12 +1,17 @@
 #!/usr/bin/python3
+# Modified for ArkOS by ridgek, 09/2021
+# For diff, compare to commit:
+# @see https://github.com/RetroPie/RetroPie-Setup/commit/bd58256ba2e5ecd79b0447ee18cfb438e7f32286
+
 # This file is part of The RetroPie Project
-# Modified for ArkOS by ridgek, Dec 2020
+# 
+# The RetroPie Project is the legal property of its developers, whose names are
+# too numerous to list here. Please refer to the COPYRIGHT.md file distributed with this source.
+# 
+# See the LICENSE.md file at the top-level directory of this distribution and 
+# at https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
 #
-# The RetroPie Project is the legal property of its developers, see
-# https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/COPYRIGHT.md
-#
-# The RetroPie Project and this script are released under a GPLv3 license, see
-# https://raw.githubusercontent.com/RetroPie/RetroPie-Setup/master/LICENSE.md
+
 import os, sys, struct, time, fcntl, termios, signal
 import curses, errno, re
 from pyudev import Context
@@ -58,7 +63,7 @@ def sysdev_get(key, sysdev_path):
     return value
 
 def get_button_codes(dev_path):
-    js_cfg_dir = '/opt/joy2key/udev/'
+    js_cfg_dir = CONFIG_DIR + 'retroarch/autoconfig/udev/'
     js_cfg = ''
     dev_name = ''
     dev_button_codes = list(default_button_codes)
